@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #080d24; }
+  .bg-wrap { position: absolute; inset: 0; overflow: hidden; }
+  .stars { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+  .star { position: absolute; width: 1.5px; height: 1.5px; background: #fff; border-radius: 50%; animation: tw var(--d) ease-in-out infinite var(--dl); }
+  @keyframes tw { 0%,100%{opacity:.1} 50%{opacity:.7} }
+  #globe-canvas { position: absolute; z-index: 1; }
+  .fade-top { position: absolute; top: 0; left: 0; right: 0; height: 180px; background: linear-gradient(to bottom, #080d24 0%, transparent 100%); z-index: 2; pointer-events: none; }
+  .fade-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 300px; background: linear-gradient(to top, #1a0a40 0%, transparent 100%); z-index: 2; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="bg-wrap">
+  <div class="stars" id="stars"></div>
+  <canvas id="globe-canvas"></canvas>
+  <div class="fade-top"></div>
+  <div class="fade-bottom"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script>
+(function() {
+  var W = window.innerWidth, H = window.innerHeight, isMobile = W < 600;
+  var starsEl = document.getElementById('stars');
+  for (var i = 0; i < 150; i++) {
+    var s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.setProperty('--d', (2.5 + Math.random() * 4) + 's');
+    s.style.setProperty('--dl', (Math.random() * 5) + 's');
+    if (Math.random() > 0.8) { s.style.width = '2px'; s.style.height = '2px'; }
+    starsEl.appendChild(s);
+  }
+  for (var i = 0; i < 100; i++) {
+    var s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = (55 + Math.random() * 45) + '%';
+    s.style.setProperty('--d', (2.5 + Math.random() * 4) + 's');
+    s.style.setProperty('--dl', (Math.random() * 5) + 's');
+    if (Math.random() > 0.7) { s.style.width = '2px'; s.style.height = '2px'; }
+    starsEl.appendChild(s);
+  }
+  var canvas = document.getElementById('globe-canvas');
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 2;
+  var globeSize = isMobile ? W * 1.3 : Math.min(W, H) * 1;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+  var cx = W / 2, cy = isMobile ? H * 0.38 : H * 0.58, radius = globeSize / 2;
+  var projection = d3.geoOrthographic().translate([cx, cy]).scale(radius).clipAngle(90);
+  var path = d3.geoPath(projection, ctx);
+  var landmarks = [
+    { name: 'Eiffel Tower', city: 'Paris', lon: 2.2945, lat: 48.8584, color: '#F2A623', icon: 'eiffel', ox: 25, oy: 5 },
+    { name: 'CN Tower', city: 'Toronto', lon: -79.3871, lat: 43.6426, color: '#E24B4A', icon: 'cn', ox: 45, oy: -25, hq: true },
+    { name: 'Big Ben', city: 'London', lon: -0.1246, lat: 51.5007, color: '#5DCAA5', icon: 'bigben', ox: -28, oy: -15 },
+    { name: 'Plaza de Espana', city: 'Seville', lon: -5.9870, lat: 37.3772, color: '#85B7EB', icon: 'plaza', ox: -25, oy: 10 },
+    { name: 'Machu Picchu', city: 'Cusco', lon: -72.5450, lat: -13.1631, color: '#D4A853', icon: 'machu', ox: -25, oy: -10 },
+    { name: 'Chichen Itza', city: 'Yucatan', lon: -88.5686, lat: 20.6843, color: '#C75B39', icon: 'chichen', ox: 25, oy: -10 },
+    { name: 'Los Tres Ojos', city: 'Santo Domingo', lon: -69.8877, lat: 18.4655, color: '#3DC7C7', icon: 'tresojos', ox: 20, oy: 15 },
+    { name: 'Holy Trinity', city: 'Addis Ababa', lon: 38.7578, lat: 9.0192, color: '#E8C547', icon: 'trinity', ox: 25, oy: -10 },
+    { name: 'Zuma Rock', city: 'Abuja', lon: 7.2571, lat: 9.1158, color: '#8B9E6B', icon: 'zuma', ox: -25, oy: 10 },
+    { name: 'Burj Khalifa', city: 'Dubai', lon: 55.2744, lat: 25.1972, color: '#A8D4F0', icon: 'burj', ox: 20, oy: -15 },
+    { name: 'Statue of Liberty', city: 'New York', lon: -74.0445, lat: 40.6892, color: '#6BC5A0', icon: 'liberty', ox: -25, oy: -12 },
+    { name: 'Golden Gate', city: 'San Francisco', lon: -122.4783, lat: 37.8199, color: '#E05038', icon: 'goldengate', ox: -22, oy: -10 },
+  ];
+  var countries, borders;
+  var rotation = [40, -20];
+  var startTime = 0;
+  var swingCenter = 35, swingRange = 32, swingPeriod = 14;
+  var graticule = d3.geoGraticule10();
+  function isVisible(lon, lat) {
+    var r = projection.rotate();
+    return d3.geoDistance([lon, lat], [-r[0], -r[1]]) < Math.PI / 2;
+  }
+  function drawIcon(px, py, lm, sc, alpha) {
+    ctx.save(); ctx.globalAlpha = alpha;
+    var s = sc * 1.5;
+    var offX = (lm.ox || 0) * s;
+    var offY = (lm.oy || 0) * s;
+    ctx.translate(px, py);
+    var pulse = 0.12 + 0.08 * Math.sin(performance.now() / 500);
+    ctx.beginPath(); ctx.arc(0, 0, 8 * s, 0, Math.PI * 2);
+    ctx.fillStyle = lm.color; ctx.globalAlpha = alpha * pulse; ctx.fill(); ctx.globalAlpha = alpha;
+    ctx.beginPath(); ctx.arc(0, 0, 3 * s, 0, Math.PI * 2); ctx.fillStyle = lm.color; ctx.fill();
+    ctx.strokeStyle = lm.color; ctx.lineWidth = 1.2 * s; ctx.globalAlpha = alpha * 0.5;
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(offX, 0); ctx.lineTo(offX, offY - 28 * s); ctx.stroke();
+    ctx.globalAlpha = alpha;
+    ctx.translate(offX, offY);
+    var by = -35 * s;
+    ctx.beginPath(); ctx.arc(0, by, 14 * s, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(8, 13, 36, 0.9)'; ctx.fill();
+    ctx.strokeStyle = lm.color; ctx.lineWidth = 1.6 * s; ctx.stroke();
+    ctx.fillStyle = lm.color; ctx.strokeStyle = lm.color; ctx.lineWidth = 1.2 * s;
+    if (lm.icon === 'eiffel') {
+      ctx.beginPath(); ctx.moveTo(0, by - 9 * s); ctx.lineTo(-5.5 * s, by + 7 * s); ctx.lineTo(-3 * s, by + 7 * s);
+      ctx.lineTo(-2 * s, by + 2 * s); ctx.lineTo(2 * s, by + 2 * s); ctx.lineTo(3 * s, by + 7 * s);
+      ctx.lineTo(5.5 * s, by + 7 * s); ctx.closePath(); ctx.fill();
+      ctx.lineWidth = 0.7 * s;
+      ctx.beginPath(); ctx.moveTo(-3.5 * s, by + 0.5 * s); ctx.lineTo(3.5 * s, by + 0.5 * s); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-4.2 * s, by + 4 * s); ctx.lineTo(4.2 * s, by + 4 * s); ctx.stroke();
+    } else if (lm.icon === 'cn') {
+      ctx.fillRect(-1.2 * s, by - 9 * s, 2.4 * s, 18 * s);
+      ctx.beginPath(); ctx.ellipse(0, by + 1 * s, 5.5 * s, 2.5 * s, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(0, by - 1 * s, 3.2 * s, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(8, 13, 36, 0.9)'; ctx.fill(); ctx.fillStyle = lm.color;
+      ctx.beginPath(); ctx.arc(0, by - 1 * s, 2 * s, 0, Math.PI * 2); ctx.fill();
+    } else if (lm.icon === 'bigben') {
+      ctx.fillRect(-3.5 * s, by - 3 * s, 7 * s, 10 * s);
+      ctx.beginPath(); ctx.moveTo(-3.5 * s, by - 3 * s); ctx.lineTo(0, by - 8 * s); ctx.lineTo(3.5 * s, by - 3 * s);
+      ctx.closePath(); ctx.fill(); ctx.fillRect(-0.8 * s, by - 10 * s, 1.6 * s, 3 * s);
+      ctx.beginPath(); ctx.arc(0, by + 0.5 * s, 2.2 * s, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(8, 13, 36, 0.9)'; ctx.fill(); ctx.fillStyle = lm.color;
+      ctx.beginPath(); ctx.arc(0, by + 0.5 * s, 1.3 * s, 0, Math.PI * 2); ctx.fill();
+    } else if (lm.icon === 'plaza') {
+      ctx.beginPath(); ctx.arc(0, by - 1 * s, 6 * s, Math.PI, 0); ctx.fill();
+      ctx.fillRect(-6.5 * s, by - 1 * s, 13 * s, 7 * s);
+      ctx.fillStyle = 'rgba(8, 13, 36, 0.9)';
+      ctx.fillRect(-4 * s, by + 2 * s, 3 * s, 4 * s);
+      ctx.fillRect(1 * s, by + 2 * s, 3 * s, 4 * s);
+      ctx.fillStyle = lm.color;
+      ctx.fillRect(-5 * s, by - 1 * s, 1.4 * s, 7 * s);
+      ctx.fillRect(3.6 * s, by - 1 * s, 1.4 * s, 7 * s);
+    } else if (lm.icon === 'machu') {
+      ctx.fillRect(-7 * s, by + 3 * s, 14 * s, 3 * s);
+      ctx.fillRect(-5 * s, by - 0.5 * s, 10 * s, 3 * s);
+      ctx.fillRect(-3 * s, by - 4 * s, 6 * s, 3 * s);
+      ctx.beginPath(); ctx.moveTo(-1.5 * s, by - 4 * s); ctx.lineTo(0, by - 8 * s); ctx.lineTo(1.5 * s, by - 4 * s);
+      ctx.closePath(); ctx.fill();
+    } else if (lm.icon === 'chichen') {
+      ctx.beginPath(); ctx.moveTo(-7 * s, by + 6 * s); ctx.lineTo(-4 * s, by - 1 * s);
+      ctx.lineTo(-3 * s, by - 1 * s); ctx.lineTo(-3 * s, by - 4 * s);
+      ctx.lineTo(3 * s, by - 4 * s); ctx.lineTo(3 * s, by - 1 * s);
+      ctx.lineTo(4 * s, by - 1 * s); ctx.lineTo(7 * s, by + 6 * s);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(8, 13, 36, 0.9)';
+      ctx.fillRect(-2 * s, by - 4 * s, 4 * s, 2.5 * s);
+      ctx.fillStyle = lm.color;
+      ctx.lineWidth = 0.6 * s;
+      ctx.beginPath(); ctx.moveTo(-6 * s, by + 2 * s); ctx.lineTo(6 * s, by + 2 * s); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-5 * s, by - 0.5 * s); ctx.lineTo(5 * s, by - 0.5 * s); ctx.stroke();
+    } else if (lm.icon === 'tresojos') {
+      ctx.lineWidth = 1.2 * s;
+      ctx.beginPath(); ctx.arc(-4 * s, by + 1 * s, 3 * s, Math.PI, 0); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, by - 2 * s, 3.5 * s, Math.PI, 0); ctx.stroke();
+      ctx.beginPath(); ctx.arc(4 * s, by + 1 * s, 3 * s, Math.PI, 0); ctx.stroke();
+      ctx.globalAlpha = alpha * 0.5;
+      ctx.beginPath(); ctx.arc(-4 * s, by + 1 * s, 2 * s, Math.PI, 0); ctx.fill();
+      ctx.beginPath(); ctx.arc(0, by - 2 * s, 2.5 * s, Math.PI, 0); ctx.fill();
+      ctx.beginPath(); ctx.arc(4 * s, by + 1 * s, 2 * s, Math.PI, 0); ctx.fill();
+      ctx.globalAlpha = alpha;
+    } else if (lm.icon === 'trinity') {
+      ctx.fillRect(-5 * s, by - 1 * s, 10 * s, 7 * s);
+      ctx.beginPath(); ctx.arc(0, by - 1 * s, 5 * s, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = 'rgba(8, 13, 36, 0.9)';
+      ctx.fillRect(-1.5 * s, by + 2 * s, 3 * s, 4 * s);
+      ctx.fillStyle = lm.color;
+      ctx.fillRect(-0.6 * s, by - 8 * s, 1.2 * s, 4 * s);
+      ctx.fillRect(-2 * s, by - 6.5 * s, 4 * s, 1 * s);
+    } else if (lm.icon === 'zuma') {
+      ctx.beginPath(); ctx.moveTo(-7 * s, by + 6 * s);
+      ctx.quadraticCurveTo(-6 * s, by - 4 * s, 0, by - 7 * s);
+      ctx.quadraticCurveTo(6 * s, by - 4 * s, 7 * s, by + 6 * s);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(8, 13, 36, 0.15)';
+      ctx.beginPath(); ctx.moveTo(-3 * s, by + 6 * s);
+      ctx.quadraticCurveTo(-2 * s, by - 1 * s, 0, by - 3 * s);
+      ctx.quadraticCurveTo(2 * s, by - 1 * s, 3 * s, by + 6 * s);
+      ctx.closePath(); ctx.fill();
+    } else if (lm.icon === 'burj') {
+      ctx.fillRect(-0.8 * s, by - 10 * s, 1.6 * s, 20 * s);
+      ctx.beginPath(); ctx.moveTo(0, by - 12 * s); ctx.lineTo(-0.6 * s, by - 10 * s); ctx.lineTo(0.6 * s, by - 10 * s);
+      ctx.closePath(); ctx.fill();
+      ctx.fillRect(-3 * s, by + 2 * s, 6 * s, 4 * s);
+      ctx.fillRect(-2 * s, by - 2 * s, 4 * s, 4 * s);
+      ctx.fillRect(-1.5 * s, by - 5 * s, 3 * s, 3 * s);
+    } else if (lm.icon === 'liberty') {
+      ctx.fillRect(-1.2 * s, by - 2 * s, 2.4 * s, 10 * s);
+      ctx.beginPath(); ctx.arc(0, by - 3.5 * s, 2.5 * s, 0, Math.PI * 2); ctx.fill();
+      ctx.lineWidth = 0.8 * s;
+      for (var ci = -2; ci <= 2; ci++) {
+        ctx.beginPath(); ctx.moveTo(ci * 1.2 * s, by - 5.5 * s); ctx.lineTo(ci * 1.5 * s, by - 8 * s); ctx.stroke();
+      }
+      ctx.fillRect(2 * s, by - 8 * s, 1.4 * s, 6 * s);
+      ctx.beginPath(); ctx.arc(2.7 * s, by - 9 * s, 1.8 * s, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFD700'; ctx.fill(); ctx.fillStyle = lm.color;
+      ctx.fillRect(-3.5 * s, by + 4 * s, 7 * s, 3 * s);
+    } else if (lm.icon === 'goldengate') {
+      ctx.fillRect(-6 * s, by + 2 * s, 2 * s, 5 * s);
+      ctx.fillRect(4 * s, by + 2 * s, 2 * s, 5 * s);
+      ctx.fillRect(-6.5 * s, by + 1 * s, 3 * s, 1.5 * s);
+      ctx.fillRect(3.5 * s, by + 1 * s, 3 * s, 1.5 * s);
+      ctx.fillRect(-8 * s, by + 4.5 * s, 16 * s, 1.5 * s);
+      ctx.lineWidth = 0.7 * s;
+      ctx.beginPath(); ctx.moveTo(-5 * s, by + 1 * s);
+      ctx.quadraticCurveTo(0, by + 5 * s, 5 * s, by + 1 * s); ctx.stroke();
+    }
+    ctx.font = '600 ' + (10 * s) + 'px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.textAlign = 'center'; ctx.fillStyle = lm.color; ctx.globalAlpha = alpha * 0.9;
+    ctx.fillText(lm.name, 0, by + 14 * s + 14 * s);
+    ctx.font = '400 ' + (8.5 * s) + 'px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillStyle = 'rgba(160, 190, 220, 0.6)'; ctx.fillText(lm.city, 0, by + 14 * s + 24 * s);
+    if (lm.hq) {
+      var hqY = by + 14 * s + 34 * s;
+      var hqW = 22 * s, hqH = 10 * s;
+      ctx.globalAlpha = alpha * 0.9;
+      ctx.fillStyle = lm.color;
+      ctx.beginPath();
+      ctx.roundRect(-hqW / 2, hqY - hqH + 2 * s, hqW, hqH, 3 * s);
+      ctx.fill();
+      ctx.font = '700 ' + (7 * s) + 'px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillStyle = '#080d24'; ctx.textAlign = 'center';
+      ctx.fillText('HQ', 0, hqY);
+    }
+    ctx.restore();
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    var atmos = ctx.createRadialGradient(cx, cy, radius * 0.92, cx, cy, radius * 1.25);
+    atmos.addColorStop(0, 'rgba(69, 80, 235, 0.12)'); atmos.addColorStop(0.6, 'rgba(50, 60, 180, 0.05)');
+    atmos.addColorStop(1, 'transparent'); ctx.fillStyle = atmos;
+    ctx.beginPath(); ctx.arc(cx, cy, radius * 1.25, 0, Math.PI * 2); ctx.fill();
+    var ocean = ctx.createRadialGradient(cx * 0.85, cy * 0.88, 0, cx, cy, radius);
+    ocean.addColorStop(0, '#10203d'); ocean.addColorStop(1, '#0c1628');
+    ctx.fillStyle = ocean; ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(50, 100, 160, 0.055)'; ctx.lineWidth = 0.4;
+    ctx.beginPath(); path(graticule); ctx.stroke();
+    if (!countries) return;
+    countries.forEach(function(c) {
+      ctx.beginPath(); path(c); ctx.fillStyle = '#163a2f'; ctx.fill();
+      ctx.strokeStyle = '#22644a'; ctx.lineWidth = 0.35; ctx.stroke();
+    });
+    ctx.strokeStyle = 'rgba(40, 120, 85, 0.2)'; ctx.lineWidth = 0.4;
+    ctx.beginPath(); path(borders); ctx.stroke();
+    var rot = projection.rotate();
+    var vis = landmarks.filter(function(l) { return isVisible(l.lon, l.lat); });
+    vis.sort(function(a, b) {
+      return d3.geoDistance([b.lon, b.lat], [-rot[0], -rot[1]]) - d3.geoDistance([a.lon, a.lat], [-rot[0], -rot[1]]);
+    });
+    vis.forEach(function(lm) {
+      var pos = projection([lm.lon, lm.lat]); if (!pos) return;
+      var dist = d3.geoDistance([lm.lon, lm.lat], [-rot[0], -rot[1]]);
+      var fade = Math.max(0, Math.min(1, 1 - dist / (Math.PI / 2)));
+      drawIcon(pos[0], pos[1], lm, 0.75 + fade * 0.25, Math.max(0.55, fade));
+    });
+    var spec = ctx.createRadialGradient(cx * 0.75, cy * 0.82, 0, cx, cy, radius);
+    spec.addColorStop(0, 'rgba(255,255,255,0.045)'); spec.addColorStop(0.45, 'rgba(255,255,255,0.008)');
+    spec.addColorStop(1, 'transparent'); ctx.fillStyle = spec;
+    ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(100, 80, 210, 0.1)'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.stroke();
+  }
+  function animate(time) {
+    var elapsed = (time - startTime) / 1000;
+    rotation[0] = swingCenter + swingRange * Math.sin(elapsed * (2 * Math.PI / swingPeriod));
+    rotation[1] = -20; projection.rotate([rotation[0], rotation[1]]); draw();
+    requestAnimationFrame(animate);
+  }
+  fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+    .then(function(r) { return r.json(); })
+    .then(function(world) {
+      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
+      countries = topojson.feature(world, world.objects.countries).features;
+      startTime = performance.now(); requestAnimationFrame(animate);
+    });
+})();
+</script>
+</body>
+</html>

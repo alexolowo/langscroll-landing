@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Langscroll — Turn Your Scroll Into Your Study</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --blue-900: #080d24;
+      --blue-800: #0d1540;
+      --blue-700: #111e5c;
+      --blue-600: #1a2e8a;
+      --blue-500: #4550EB;
+      --blue-400: #6B7AF5;
+      --blue-300: #93A3FB;
+      --blue-200: #C7CFFE;
+      --blue-100: #E0E4FF;
+      --blue-50: #F0F1FF;
+      --purple-500: #A855F7;
+      --purple-400: #C084FC;
+      --purple-300: #D8B4FE;
+      --white: #ffffff;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+      --grad: linear-gradient(135deg, #4550EB, #A855F7);
+      --grad-dark: linear-gradient(135deg, #3540D5, #8B35E0);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--gray-800);
+      background: var(--white);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .nav-inner {
+      max-width: 1120px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 22px; font-weight: 800; color: var(--blue-900);
+      text-decoration: none; letter-spacing: -0.5px;
+    }
+    .logo img { width: 32px; height: 32px; object-fit: contain; }
+    .logo span {
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a {
+      font-size: 14px; font-weight: 500; color: var(--gray-600);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--blue-500); }
+    .nav-cta {
+      background: var(--grad) !important; color: var(--white) !important;
+      padding: 10px 22px !important; border-radius: 8px;
+      font-weight: 600 !important; transition: filter 0.2s !important;
+    }
+    .nav-cta:hover { filter: brightness(1.12) !important; }
+
+    .hamburger {
+      display: none; background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .hamburger svg { width: 24px; height: 24px; stroke: var(--gray-700); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: #080d24;
+      overflow: hidden; padding: 120px 24px 80px;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to bottom, rgba(8,13,36,0.45) 0%, rgba(8,13,36,0.15) 40%, rgba(26,10,64,0.55) 100%);
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 720px; text-align: center;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50px; padding: 6px 18px;
+      font-size: 13px; font-weight: 500; color: var(--blue-200);
+      margin-bottom: 28px; backdrop-filter: blur(8px);
+    }
+    .hero h1 {
+      font-size: clamp(40px, 6vw, 64px);
+      font-weight: 800; color: var(--white);
+      line-height: 1.1; letter-spacing: -1.5px;
+      margin-bottom: 20px;
+    }
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--blue-300), var(--purple-300));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 18px; color: var(--blue-200);
+      max-width: 520px; margin: 0 auto 40px; line-height: 1.7;
+    }
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--grad); color: var(--white);
+      padding: 14px 32px; border-radius: 12px;
+      font-size: 16px; font-weight: 600;
+      text-decoration: none; transition: all 0.2s;
+      border: none; cursor: pointer;
+    }
+    .btn-primary:hover { filter: brightness(1.12); transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--white); padding: 14px 32px; border-radius: 12px;
+      font-size: 16px; font-weight: 600;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.15); transform: translateY(-1px); }
+
+    .hero-stats {
+      display: flex; gap: 48px; justify-content: center;
+      margin-top: 64px; padding-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .num {
+      font-size: 32px; font-weight: 800; color: var(--white);
+      letter-spacing: -1px;
+    }
+    .hero-stat .label {
+      font-size: 13px; color: var(--blue-300); margin-top: 4px;
+    }
+
+    /* globe iframe */
+    .globe-frame {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      border: none; pointer-events: none; z-index: 0;
+    }
+
+    /* ── SECTION UTIL ── */
+    section { padding: 100px 24px; }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .section-label {
+      font-size: 13px; font-weight: 700;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;
+      display: inline-block;
+    }
+    .section-title {
+      font-size: clamp(30px, 4vw, 42px);
+      font-weight: 800; color: var(--blue-900);
+      line-height: 1.2; letter-spacing: -1px; margin-bottom: 16px;
+    }
+    .section-subtitle {
+      font-size: 17px; color: var(--gray-500);
+      max-width: 560px; line-height: 1.7;
+    }
+
+    /* ── SOLUTION ── */
+    .solution-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px; margin-top: 56px;
+    }
+    .solution-card {
+      background: var(--blue-50);
+      border: 1px solid var(--blue-100);
+      border-radius: 16px; padding: 36px 28px;
+      transition: transform 0.2s;
+    }
+    .solution-card:hover { transform: translateY(-4px); }
+    .solution-icon {
+      width: 52px; height: 52px;
+      background: var(--grad); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .solution-icon svg { width: 26px; height: 26px; stroke: var(--white); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .solution-card h3 {
+      font-size: 18px; font-weight: 700; color: var(--blue-900);
+      margin-bottom: 10px;
+    }
+    .solution-card p { font-size: 15px; color: var(--gray-600); line-height: 1.6; }
+
+    /* ── HOW IT WORKS ── */
+    .how { background: var(--gray-50); }
+    .steps {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 32px; margin-top: 56px; position: relative;
+    }
+    .steps::before {
+      content: ''; position: absolute;
+      top: 40px; left: calc(16.67% + 16px); right: calc(16.67% + 16px);
+      height: 2px; background: linear-gradient(90deg, #4550EB, #A855F7);
+    }
+    .step { text-align: center; position: relative; }
+    .step-num {
+      width: 80px; height: 80px; margin: 0 auto 24px;
+      background: var(--white);
+      border: 3px solid transparent;
+      background-clip: padding-box;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 800;
+      background-image: linear-gradient(var(--white), var(--white)), var(--grad);
+      background-origin: border-box;
+      -webkit-background-clip: padding-box, border-box;
+      background-clip: padding-box, border-box;
+      border: 3px solid transparent;
+      color: var(--blue-500);
+      position: relative; z-index: 1;
+    }
+    .step h3 { font-size: 20px; font-weight: 700; color: var(--blue-900); margin-bottom: 10px; }
+    .step p { font-size: 15px; color: var(--gray-500); line-height: 1.6; max-width: 280px; margin: 0 auto; }
+
+    /* ── PRICING ── */
+    .pricing { background: var(--gray-50); }
+    .pricing-grid {
+      display: flex; gap: 40px;
+      margin-top: 56px; max-width: 900px; margin-left: auto; margin-right: auto;
+      align-items: start;
+    }
+    .pricing-grid > * { flex: 1 1 0; min-width: 0; }
+    .pricing-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 16px; padding: 36px 28px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .pricing-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+    .pricing-card.featured {
+      border-color: transparent;
+      background-image: linear-gradient(var(--white), var(--white)), var(--grad);
+      background-origin: border-box;
+      -webkit-background-clip: padding-box, border-box;
+      background-clip: padding-box, border-box;
+      border: 2px solid transparent;
+      box-shadow: 0 0 32px rgba(168,85,247,0.12);
+    }
+    .pricing-tier {
+      font-size: 13px; font-weight: 700;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase; letter-spacing: 1px;
+      display: inline-block;
+    }
+    .pricing-price {
+      font-size: 36px; font-weight: 800; color: var(--blue-900);
+      margin: 12px 0 4px; letter-spacing: -1px;
+    }
+    .pricing-price span { font-size: 16px; font-weight: 500; color: var(--gray-500); }
+    .pricing-desc { font-size: 14px; color: var(--gray-500); margin-bottom: 24px; }
+    .pricing-features { list-style: none; }
+    .pricing-features li {
+      font-size: 14px; color: var(--gray-600);
+      padding: 8px 0; display: flex; align-items: center; gap: 10px;
+    }
+    .pricing-features li::before {
+      content: '';
+      width: 20px; height: 20px; flex-shrink: 0;
+      background: var(--blue-100); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234550EB' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: center;
+    }
+
+    /* ── PILOT CHART ── */
+    .pilot-chart {
+      background: linear-gradient(160deg, #0d1540 0%, #1a0a40 100%);
+      border-radius: 16px; padding: 32px 28px;
+      display: flex; flex-direction: column; align-items: center; gap: 24px;
+    }
+    .pilot-chart-header { width: 100%; }
+    .pilot-chart-title {
+      font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; display: inline-block; margin-bottom: 4px;
+    }
+    .pilot-chart-sub { font-size: 14px; color: rgba(255,255,255,0.45); }
+    .donut-wrap { position: relative; width: 180px; height: 180px; flex-shrink: 0; }
+    .donut-wrap svg { width: 180px; height: 180px; }
+    .donut-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .donut-num {
+      font-size: 38px; font-weight: 800; color: var(--white);
+      letter-spacing: -1px; line-height: 1;
+    }
+    .donut-denom { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .pilot-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+    .pilot-stat {
+      background: rgba(255,255,255,0.07); border-radius: 10px;
+      padding: 14px 12px; text-align: center;
+    }
+    .pilot-stat-val {
+      font-size: 22px; font-weight: 800; color: var(--white); letter-spacing: -0.5px;
+    }
+    .pilot-stat-val.gradient {
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .pilot-stat-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .pilot-bar-wrap { width: 100%; }
+    .pilot-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 6px;
+    }
+    .pilot-bar-track {
+      height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden;
+    }
+    .pilot-bar-fill {
+      height: 100%; background: var(--grad); border-radius: 99px;
+      width: 0%; transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    .pilot-live {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: rgba(255,255,255,0.35); width: 100%;
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #4ade80; flex-shrink: 0;
+      animation: livepulse 2s ease-in-out infinite;
+    }
+    @keyframes livepulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: linear-gradient(160deg, #080d24 0%, #1a0a40 100%);
+      text-align: center;
+    }
+    .cta-section .section-title { color: var(--white); }
+    .cta-section .section-subtitle { color: var(--blue-200); margin: 0 auto 40px; }
+    .cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    .store-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px; padding: 14px 24px;
+      color: var(--white); text-decoration: none;
+      transition: all 0.2s; cursor: pointer;
+    }
+    .store-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-1px); }
+    .store-btn svg { width: 28px; height: 28px; fill: var(--white); }
+    .store-btn .store-text { text-align: left; }
+    .store-btn .store-text small { font-size: 11px; opacity: 0.7; display: block; }
+    .store-btn .store-text strong { font-size: 16px; font-weight: 600; }
+
+    /* ── FAQ FLOATING WIDGET ── */
+    .faq-fab {
+      position: fixed; right: 20px; bottom: 20px; z-index: 999;
+      width: 56px; height: 56px; border-radius: 18px;
+      background: var(--grad); border: none; color: var(--white);
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(69,80,235,0.4);
+      transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
+    }
+    .faq-fab:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 14px 32px rgba(69,80,235,0.5); }
+    .faq-fab:active { transform: translateY(0); }
+    .faq-fab svg { width: 22px; height: 22px; }
+
+    .faq-panel {
+      position: fixed; right: 20px; bottom: 88px; z-index: 999;
+      width: min(400px, calc(100vw - 40px));
+      max-height: min(540px, calc(100vh - 140px));
+      border-radius: 16px; overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      box-shadow: 0 20px 60px rgba(8,13,36,0.14), 0 4px 16px rgba(8,13,36,0.06);
+      opacity: 0; transform: translateY(10px) scale(0.98);
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .faq-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+
+    .faq-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 16px 18px;
+      background: var(--blue-50); border-bottom: 1px solid var(--blue-100);
+    }
+    .faq-title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 15px; font-weight: 800; color: var(--blue-900); letter-spacing: -0.3px;
+    }
+    .faq-title-badge {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; display: inline-block;
+    }
+    .faq-close {
+      background: var(--white); border: 1px solid var(--gray-200);
+      width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--gray-500); transition: background 0.15s;
+    }
+    .faq-close:hover { background: var(--gray-100); }
+    .faq-close svg { width: 14px; height: 14px; }
+
+    .faq-body {
+      padding: 12px 12px 14px; overflow-y: auto;
+      max-height: calc(min(540px, calc(100vh - 140px)) - 62px);
+    }
+    .faq-item {
+      background: var(--blue-50); border: 1px solid var(--blue-100);
+      border-radius: 12px; overflow: hidden; margin-bottom: 8px;
+    }
+    .faq-item:last-child { margin-bottom: 0; }
+    .faq-q {
+      width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;
+      padding: 13px 15px; display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; font-size: 13px; font-weight: 700; color: var(--blue-900);
+    }
+    .faq-q span { flex: 1; }
+    .faq-chevron {
+      width: 16px; height: 16px; flex-shrink: 0; color: var(--blue-500);
+      transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+    .faq-a {
+      display: none; padding: 0 15px 13px;
+      color: var(--gray-600); font-size: 13px; line-height: 1.65;
+    }
+    .faq-item.open .faq-a { display: block; }
+    .faq-a a { color: var(--blue-500); text-decoration: none; font-weight: 600; }
+    .faq-a a:hover { text-decoration: underline; }
+
+    .faq-overlay {
+      position: fixed; inset: 0; z-index: 998;
+      background: transparent; opacity: 0; pointer-events: none;
+    }
+    .faq-overlay.open { opacity: 1; pointer-events: auto; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: linear-gradient(160deg, #080d24 0%, #1a0a40 100%);
+      padding: 48px 24px;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .footer-logo {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-size: 20px; font-weight: 800; color: var(--white); margin-bottom: 8px;
+    }
+.footer-logo span {
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    footer p { font-size: 13px; color: var(--blue-300); }
+    footer a { color: var(--blue-300); text-decoration: none; }
+    footer a:hover { color: var(--white); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-links.open {
+        display: flex; flex-direction: column;
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: var(--white); padding: 24px;
+        border-bottom: 1px solid var(--gray-200);
+        gap: 16px;
+      }
+      .hamburger { display: block; }
+      .hero-stats { flex-direction: column; gap: 24px; }
+      .solution-grid, .steps {
+        grid-template-columns: 1fr;
+      }
+      .steps::before { display: none; }
+      .pricing-grid { flex-direction: column; }
+      .faq-panel { right: 12px; left: 12px; width: auto; }
+      .faq-fab { right: 12px; bottom: 12px; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .solution-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .faq-chevron { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo"><img src="logo.png" alt="Langscroll"><span>langscroll</span></a>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="nav-links">
+      <a href="#solution">Features</a>
+      <a href="#how">How It Works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="signup.html" class="nav-cta js-cta"><span class="js-cta-text">Sign Up</span></a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <iframe class="globe-frame" src="globe.html" title="Globe"></iframe>
+  <div class="hero-content">
+    <div class="hero-badge">Learn languages while you scroll</div>
+    <h1>Your TikToks and Reels are now <span class="highlight">language lessons.</span></h1>
+    <p>Langscroll overlays real-time translations and vocabulary onto the videos you already watch. No apps to open. No streaks to maintain. Just scroll and learn.</p>
+    <div class="hero-buttons">
+      <a href="signup.html" class="btn-primary js-cta">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        <span class="js-cta-text">Sign Up for Early Access</span>
+      </a>
+      <a href="#how" class="btn-secondary">See How It Works</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num">0 min</div>
+        <div class="label">Extra time needed per day</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">3+</div>
+        <div class="label">Languages: English, Spanish &amp; more coming</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">100%</div>
+        <div class="label">Free, forever — for the first 200 users</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="solution" id="solution">
+  <div class="container">
+    <div class="section-label">Features</div>
+    <div class="section-title">Learn from the content<br>you already love.</div>
+    <div class="section-subtitle">Real creators. Real conversations. Real language skills &mdash; picked up while you scroll.</div>
+    <div class="solution-grid">
+      <div class="solution-card">
+        <div class="solution-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Tap Any Word</h3>
+        <p>See instant translations, hear pronunciation, and save words &mdash; all without leaving the video you're watching.</p>
+      </div>
+      <div class="solution-card">
+        <div class="solution-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5" fill="white" stroke="none"/></svg>
+        </div>
+        <h3>Adapts to You</h3>
+        <p>AI adjusts vocabulary and difficulty based on what you already know. Beginners see more translations, advanced learners see less.</p>
+      </div>
+      <div class="solution-card">
+        <div class="solution-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <h3>Real-World Context</h3>
+        <p>Pick up slang, idioms, and cultural nuance from native speakers &mdash; the stuff textbooks and flashcard apps never teach you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="section-label">How It Works</div>
+    <div class="section-title">Three steps. Zero habit change.</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Scroll</h3>
+        <p>Open TikTok, Instagram, or YouTube Shorts and watch whatever you want. No special app needed.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Learn</h3>
+        <p>Translated subtitles and tappable vocabulary appear on your videos. Hear words pronounced. Save the ones you like.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Grow</h3>
+        <p>Your vocabulary grows naturally over time. Review saved words, track progress, and watch your fluency build.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-label">Pricing</div>
+    <div class="section-title">Free during our pilot.</div>
+    <div class="section-subtitle">The first 100–200 users get every feature free for life. Get in early.</div>
+    <div class="pricing-grid">
+      <div class="pricing-card featured">
+        <div class="pricing-tier">Pilot — Free for Life</div>
+        <div class="pricing-price">$0</div>
+        <div class="pricing-desc">Join now and lock in free access forever while spots last.</div>
+        <ul class="pricing-features">
+          <li>English, French, Spanish &amp; more coming...</li>
+          <li>Interactive subtitle overlay</li>
+          <li>AI Context Dictionary &amp; personalization</li>
+          <li>Progress tracking &amp; Study help</li>
+          <li>Native contextual language learning</li>
+          <li>Community support</li>
+        </ul>
+        <a href="signup.html" class="btn-primary js-cta" style="margin-top:24px;display:flex;justify-content:center;text-decoration:none;">
+          <span class="js-cta-text">Get Free Access</span>
+        </a>
+      </div>
+
+      <div class="pilot-chart" id="pilot-chart">
+        <div class="pilot-chart-header">
+          <div class="pilot-chart-title">Pilot Progress</div>
+          <div class="pilot-chart-sub">Spots are filling up — join before it's too late.</div>
+        </div>
+
+        <div class="donut-wrap">
+          <svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="donut-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#4550EB"/>
+                <stop offset="100%" stop-color="#A855F7"/>
+              </linearGradient>
+            </defs>
+            <circle cx="90" cy="90" r="70" fill="none"
+              stroke="rgba(255,255,255,0.08)" stroke-width="14"/>
+            <circle cx="90" cy="90" r="70" fill="none"
+              stroke="url(#donut-grad)" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="439.82" stroke-dashoffset="439.82"
+              transform="rotate(-90 90 90)" id="donut-arc"/>
+          </svg>
+          <div class="donut-center">
+            <div class="donut-num" id="pilot-count">—</div>
+            <div class="donut-denom">of 200</div>
+          </div>
+        </div>
+
+        <div class="pilot-stats">
+          <div class="pilot-stat">
+            <div class="pilot-stat-val gradient" id="stat-joined">—</div>
+            <div class="pilot-stat-label">Joined</div>
+          </div>
+          <div class="pilot-stat">
+            <div class="pilot-stat-val" id="stat-remaining">—</div>
+            <div class="pilot-stat-label">Remaining</div>
+          </div>
+        </div>
+
+        <div class="pilot-bar-wrap">
+          <div class="pilot-bar-label">
+            <span>0</span><span>200 spots</span>
+          </div>
+          <div class="pilot-bar-track">
+            <div class="pilot-bar-fill" id="pilot-bar"></div>
+          </div>
+        </div>
+
+        <div class="pilot-live">
+          <span class="live-dot"></span>
+          Live count
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA / SIGN UP -->
+<section class="cta-section" id="signup">
+  <div class="container">
+    <div class="section-title">Start learning from your feed<br>today.</div>
+    <div class="section-subtitle">Join the waitlist and be the first to turn your scroll time into real language skills.</div>
+    <div class="cta-buttons">
+      <!-- Apple App Store (dormant) -->
+      <a href="#" class="store-btn" onclick="event.preventDefault()">
+        <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <div class="store-text">
+          <small>Download on the</small>
+          <strong>App Store</strong>
+        </div>
+      </a>
+      <!-- Google Play Store (dormant) -->
+      <a href="#" class="store-btn" onclick="event.preventDefault()">
+        <svg viewBox="0 0 24 24"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.302 2.302a1 1 0 0 1 0 1.38l-2.302 2.302L15.1 12.69l2.598-3.182zM5.864 2.658L16.8 9.99l-2.302 2.302L5.864 2.658z"/></svg>
+        <div class="store-text">
+          <small>Get it on</small>
+          <strong>Google Play</strong>
+        </div>
+      </a>
+      <!-- Sign Up -->
+      <a href="signup.html" class="btn-primary js-cta">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span class="js-cta-text">Sign Up for Early Access</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo"><span>langscroll</span></div>
+  <p>&copy; 2026 Langscroll. All rights reserved. &nbsp;&middot;&nbsp; <a href="mailto:admin@getlangscroll.com">admin@getlangscroll.com</a></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  (async () => {
+    const PILOT_MAX = 200;
+    const client = supabase.createClient(
+      'https://rvfkbodbhietyljndfwx.supabase.co',
+      'sb_publishable_8DV9d8TXrOLmwc_7qoB-Zw_qPRbjTDs'
+    );
+    const { data, error } = await client.rpc('get_pilot_count');
+    if (error || data === null) return;
+    const count = Math.min(Number(data), PILOT_MAX);
+    const remaining = Math.max(PILOT_MAX - count, 0);
+    const pct = (count / PILOT_MAX) * 100;
+    const circumference = 2 * Math.PI * 70;
+
+    document.getElementById('pilot-count').textContent = count;
+    document.getElementById('stat-joined').textContent = count;
+    document.getElementById('stat-remaining').textContent = remaining;
+
+    requestAnimationFrame(() => {
+      document.getElementById('pilot-bar').style.width = pct + '%';
+      const arc = document.getElementById('donut-arc');
+      arc.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)';
+      arc.style.strokeDashoffset = circumference * (1 - pct / 100);
+    });
+
+    if (count >= PILOT_MAX) {
+      document.querySelectorAll('.js-cta').forEach(a => {
+        a.href = 'waitlist.html';
+        const t = a.querySelector('.js-cta-text');
+        if (t) t.textContent = 'Join the Waitlist';
+      });
+      document.querySelector('.pilot-chart-sub').textContent = 'Pilot is full — join the waitlist for the next batch!';
+      document.querySelector('.pricing-desc').textContent = 'The pilot is full. Join the waitlist and we\'ll let you know when more spots open.';
+    }
+  })();
+</script>
+
+
+<!-- FAQ FLOATING PANEL -->
+<div class="faq-overlay" id="faqOverlay" aria-hidden="true"></div>
+
+<aside class="faq-panel" id="faqPanel" aria-label="Frequently asked questions">
+  <div class="faq-header">
+    <div class="faq-title">
+      FAQ <span class="faq-title-badge">Quick help</span>
+    </div>
+    <button class="faq-close" id="faqClose" type="button" aria-label="Close FAQ">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <path d="M18 6L6 18"/><path d="M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+  <div class="faq-body">
+
+    <div class="faq-item open">
+      <button class="faq-q" type="button">
+        <span>What is Langscroll?</span>
+        <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="faq-a">
+        Langscroll is a mobile app that overlays real-time translations and tappable vocabulary onto the short-form videos you already watch — TikTok, Instagram Reels, and more. Learn passively, no habit change needed.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">
+        <span>Is it really free?</span>
+        <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="faq-a">
+        Yes — the first 100–200 pilot users get <strong>every feature free for life</strong>. After the pilot, affordable paid plans will be introduced, but pilot members keep free access forever.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">
+        <span>Which platforms does it support?</span>
+        <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="faq-a">
+        Currently <strong>TikTok</strong> and <strong>Instagram Reels</strong>, with YouTube Shorts coming soon. We're expanding based on what users watch most.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">
+        <span>Which languages are available?</span>
+        <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="faq-a">
+        <strong>English, French, and Spanish</strong> are live now, with more on the way. We're prioritising new languages based on pilot feedback.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">
+        <span>How do I sign up?</span>
+        <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="faq-a">
+        Tap <strong>Sign Up for Early Access</strong> anywhere on this page. If the pilot is full, you'll join the waitlist and be notified when more spots open.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">
+        <span>Have a question not answered here?</span>
+        <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="faq-a">
+        Email us at <a href="mailto:admin@getlangscroll.com">admin@getlangscroll.com</a> and we'll get back to you.
+      </div>
+    </div>
+
+  </div>
+</aside>
+
+<button class="faq-fab" id="faqFab" type="button" aria-haspopup="dialog" aria-controls="faqPanel" aria-expanded="false" aria-label="Open FAQ">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+    <path d="M9.5 9a2.5 2.5 0 1 1 4.2 1.8c-.7.6-1.2 1-1.2 2.2"/>
+    <path d="M12 17h.01"/>
+  </svg>
+</button>
+
+<script>
+  (function () {
+    const panel = document.getElementById('faqPanel');
+    const fab = document.getElementById('faqFab');
+    const closeBtn = document.getElementById('faqClose');
+    const overlay = document.getElementById('faqOverlay');
+    if (!panel || !fab || !closeBtn || !overlay) return;
+
+    function setOpen(next) {
+      panel.classList.toggle('open', next);
+      overlay.classList.toggle('open', next);
+      overlay.setAttribute('aria-hidden', String(!next));
+      fab.setAttribute('aria-expanded', String(next));
+      if (next) { const q = panel.querySelector('.faq-q'); q && q.focus(); }
+      else fab.focus();
+    }
+
+    fab.addEventListener('click', () => setOpen(!panel.classList.contains('open')));
+    closeBtn.addEventListener('click', () => setOpen(false));
+    overlay.addEventListener('click', () => setOpen(false));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+
+    panel.addEventListener('click', (e) => {
+      const q = e.target.closest('.faq-q');
+      if (!q) return;
+      const item = q.closest('.faq-item');
+      if (!item) return;
+      const isOpen = item.classList.contains('open');
+      panel.querySelectorAll('.faq-item.open').forEach((el) => el.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  })();
+</script>
+
+</body>
+</html>

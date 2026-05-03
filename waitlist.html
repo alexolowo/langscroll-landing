@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join the Waitlist — Langscroll</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --grad: linear-gradient(135deg, #4550EB, #A855F7);
+      --purple-500: #A855F7;
+      --white: #ffffff;
+    }
+
+    html, body {
+      height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #080d24; overflow: hidden;
+    }
+
+    .globe-frame {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      border: none; pointer-events: none; z-index: 0;
+    }
+
+    .overlay {
+      position: fixed; inset: 0; z-index: 1;
+      background: linear-gradient(to bottom, rgba(8,13,36,0.6) 0%, rgba(26,10,64,0.5) 100%);
+    }
+
+    .page {
+      position: relative; z-index: 2;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 24px;
+      overflow-y: auto;
+    }
+
+    .back {
+      position: fixed; top: 20px; left: 24px; z-index: 10;
+      display: flex; align-items: center; gap: 6px;
+      color: rgba(255,255,255,0.6); text-decoration: none;
+      font-size: 14px; font-weight: 500; transition: color 0.2s;
+    }
+    .back:hover { color: rgba(255,255,255,0.9); }
+    .back svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .logo {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 28px;
+      text-decoration: none;
+    }
+    .logo img { width: 32px; height: 32px; object-fit: contain; }
+    .logo-text {
+      font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Missed-it banner */
+    .missed-banner {
+      width: 100%; max-width: 460px;
+      background: linear-gradient(135deg, rgba(69,80,235,0.2), rgba(168,85,247,0.2));
+      border: 1px solid rgba(168,85,247,0.3);
+      border-radius: 14px; padding: 20px 24px; margin-bottom: 16px;
+      text-align: center;
+    }
+    .missed-emoji { font-size: 32px; margin-bottom: 8px; }
+    .missed-title {
+      font-size: 18px; font-weight: 800; color: var(--white);
+      margin-bottom: 6px;
+    }
+    .missed-sub {
+      font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.5;
+    }
+
+    .card {
+      width: 100%; max-width: 460px;
+      background: rgba(12, 18, 45, 0.85);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 32px 32px;
+    }
+
+    .card-title {
+      font-size: 18px; font-weight: 800; color: var(--white);
+      margin-bottom: 4px;
+    }
+    .card-subtitle {
+      font-size: 13px; color: rgba(255,255,255,0.4);
+      margin-bottom: 24px; line-height: 1.5;
+    }
+    .card-subtitle strong {
+      color: rgba(255,255,255,0.65); font-weight: 600;
+    }
+
+    .fields-row { display: flex; gap: 12px; }
+    .fields-row .field { flex: 1; }
+
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,0.6); margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%; padding: 12px 14px; border-radius: 10px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--white); font-size: 15px; font-family: inherit;
+      outline: none; transition: border-color 0.2s;
+    }
+    .field input::placeholder { color: rgba(255,255,255,0.25); }
+    .field input:focus { border-color: rgba(69,80,235,0.6); }
+
+    .disclaimer {
+      font-size: 12px; color: rgba(255,255,255,0.35);
+      line-height: 1.5; margin-bottom: 16px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px; border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .btn-primary {
+      width: 100%; padding: 13px; border-radius: 10px; cursor: pointer;
+      background: var(--grad); color: var(--white);
+      font-size: 15px; font-weight: 700; font-family: inherit;
+      border: none; transition: filter 0.2s;
+    }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; filter: none; }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5; font-size: 13px; font-weight: 500;
+      padding: 10px 14px; border-radius: 8px; margin-bottom: 16px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    .success-card {
+      width: 100%; max-width: 460px; text-align: center;
+      background: rgba(12, 18, 45, 0.85);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 48px 32px;
+      display: none;
+    }
+    .success-card.show { display: block; }
+    .success-icon {
+      width: 64px; height: 64px; margin: 0 auto 20px;
+      background: var(--grad); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .success-icon svg { width: 30px; height: 30px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .success-card h2 { font-size: 22px; font-weight: 800; color: var(--white); margin-bottom: 10px; }
+    .success-card p { font-size: 15px; color: rgba(255,255,255,0.55); line-height: 1.6; }
+    .success-card .back-link {
+      display: inline-block; margin-top: 28px;
+      color: rgba(168,85,247,0.9); font-size: 14px; font-weight: 600;
+      text-decoration: none;
+    }
+    .success-card .back-link:hover { color: var(--purple-500); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+
+    @media (max-width: 480px) {
+      .card, .success-card { padding: 28px 20px; }
+      .fields-row { flex-direction: column; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<iframe class="globe-frame" src="globe.html" title="Globe"></iframe>
+<div class="overlay"></div>
+
+<a href="index.html" class="back">
+  <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  Back
+</a>
+
+<div class="page">
+  <a href="index.html" class="logo">
+    <img src="logo.png" alt="Langscroll">
+    <span class="logo-text">langscroll</span>
+  </a>
+
+  <div class="missed-banner">
+    <div class="missed-emoji">😅</div>
+    <div class="missed-title">You just missed it!</div>
+    <div class="missed-sub">The pilot is full — but don't worry, more room for you is coming. Drop your details below and you'll be first to know when the next batch opens.</div>
+  </div>
+
+  <div class="card" id="waitlist-card">
+    <div class="card-title">Join the waitlist</div>
+    <div class="card-subtitle"><strong>This does not create an account.</strong> Once more spots open, we'll email you with a proper sign-up link.</div>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <form onsubmit="handleSubmit(event)">
+      <div class="fields-row">
+        <div class="field">
+          <label>First Name</label>
+          <input type="text" id="first-name" placeholder="Jane" required autocomplete="given-name">
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <input type="text" id="last-name" placeholder="Doe" required autocomplete="family-name">
+        </div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="you@example.com" required autocomplete="email">
+      </div>
+      <div class="disclaimer">
+        By joining, you agree to receive one email when new spots open. No spam, ever. You can unsubscribe at any time.
+      </div>
+      <button type="submit" class="btn-primary" id="btn-submit">Save My Spot</button>
+    </form>
+  </div>
+
+  <div class="success-card" id="success-card">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>You're on the list!</h2>
+    <p>We'll email you the moment more pilot spots open up. In the meantime, tell your friends — the more people who join, the faster we grow.</p>
+    <a href="index.html" class="back-link">← Back to home</a>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://rvfkbodbhietyljndfwx.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_8DV9d8TXrOLmwc_7qoB-Zw_qPRbjTDs';
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  function clearError() {
+    document.getElementById('error-msg').classList.remove('show');
+  }
+
+  function setLoading(loading) {
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = loading;
+    btn.innerHTML = loading ? '<span class="spinner"></span> Please wait…' : 'Save My Spot';
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    clearError();
+
+    const first_name = document.getElementById('first-name').value.trim();
+    const last_name = document.getElementById('last-name').value.trim();
+    const email = document.getElementById('email').value.trim().toLowerCase();
+
+    setLoading(true);
+    const { error } = await client.from('waitlist').insert({ first_name, last_name, email });
+    setLoading(false);
+
+    if (error) {
+      if (error.code === '23505') {
+        showError('This email is already on the waitlist.');
+      } else {
+        showError(error.message);
+      }
+    } else {
+      document.getElementById('waitlist-card').style.display = 'none';
+      document.querySelector('.missed-banner').style.display = 'none';
+      document.getElementById('success-card').classList.add('show');
+    }
+  }
+</script>
+</body>
+</html>
