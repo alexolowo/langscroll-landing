@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms & Privacy — Langscroll</title>
+  <meta name="description" content="Langscroll Terms of Service and Privacy Policy.">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --blue-900: #080d24;
+      --blue-500: #4550EB;
+      --blue-300: #93A3FB;
+      --purple-500: #A855F7;
+      --white: #ffffff;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+      --grad: linear-gradient(135deg, #4550EB, #A855F7);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--gray-800);
+      background: var(--white);
+      line-height: 1.65;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .nav-inner {
+      max-width: 1120px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 22px; font-weight: 800; color: var(--blue-900);
+      text-decoration: none; letter-spacing: -0.5px;
+    }
+    .logo img { width: 32px; height: 32px; object-fit: contain; }
+    .logo span {
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-back {
+      font-size: 14px; font-weight: 500; color: var(--gray-600);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--blue-500); }
+
+    /* ── DOC ── */
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 64px 24px 96px;
+    }
+    .doc-title {
+      font-size: 40px; font-weight: 800; color: var(--blue-900);
+      letter-spacing: -1px; margin-bottom: 8px;
+    }
+    .doc-effective {
+      font-size: 14px; color: var(--gray-500); margin-bottom: 16px;
+    }
+    .doc-intro {
+      font-size: 15px; color: var(--gray-600);
+      padding: 16px 18px; background: var(--gray-100); border-radius: 10px;
+      margin-bottom: 40px; border-left: 3px solid var(--blue-500);
+    }
+    .doc-intro a { color: var(--blue-500); font-weight: 500; }
+
+    h2 {
+      font-size: 22px; font-weight: 700; color: var(--blue-900);
+      letter-spacing: -0.4px;
+      margin: 36px 0 12px;
+    }
+    h2.privacy-divider {
+      margin-top: 56px;
+      padding-top: 32px;
+      border-top: 1px solid var(--gray-200);
+      font-size: 28px;
+      letter-spacing: -0.6px;
+    }
+    p, ul {
+      font-size: 15px; color: var(--gray-700);
+      margin-bottom: 14px;
+    }
+    ul { padding-left: 22px; }
+    ul li { margin-bottom: 6px; }
+    a { color: var(--blue-500); }
+    a:hover { color: var(--purple-500); }
+
+    .toc {
+      background: var(--gray-100);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 40px;
+    }
+    .toc-title {
+      font-size: 13px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.6px; color: var(--gray-500); margin-bottom: 10px;
+    }
+    .toc ol { list-style: none; padding: 0; columns: 2; column-gap: 24px; }
+    .toc ol li {
+      font-size: 14px; margin-bottom: 6px; break-inside: avoid;
+    }
+    .toc a { color: var(--gray-700); text-decoration: none; }
+    .toc a:hover { color: var(--blue-500); }
+
+    .legal-emphasis {
+      font-size: 14px;
+      background: #fffbea;
+      border: 1px solid #f5e3a8;
+      padding: 14px 16px; border-radius: 10px;
+      color: var(--gray-800);
+      margin-bottom: 14px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: linear-gradient(160deg, #080d24 0%, #1a0a40 100%);
+      padding: 48px 24px;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      color: var(--blue-300);
+    }
+    .footer-logo {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-size: 20px; font-weight: 800; color: var(--white); margin-bottom: 8px;
+    }
+    .footer-logo span {
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    footer p { font-size: 13px; }
+    footer a { color: var(--blue-300); text-decoration: none; }
+    footer a:hover { color: var(--white); }
+
+    @media (max-width: 600px) {
+      .doc-title { font-size: 32px; }
+      h2.privacy-divider { font-size: 24px; }
+      .toc ol { columns: 1; }
+      main { padding: 40px 20px 72px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <img src="logo.png" alt="Langscroll logo">
+      lang<span>scroll</span>
+    </a>
+    <a href="index.html" class="nav-back">&larr; Back to home</a>
+  </div>
+</nav>
+
+<main>
+  <h1 class="doc-title">Terms & Privacy Policy</h1>
+  <p class="doc-effective">Effective May 4, 2026</p>
+
+  <div class="doc-intro">
+    Welcome to Langscroll. These Terms of Service and Privacy Policy ("Terms") govern your access to and use of the Langscroll mobile application, the website at <a href="https://getlangscroll.com">getlangscroll.com</a>, and any related services (the "Service") provided by Langscroll Inc. ("Langscroll", "we", "us", or "our"). By creating an account, signing in, or otherwise using the Service, you agree to be bound by these Terms. If you do not agree, do not use the Service.
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#eligibility">1. Eligibility</a></li>
+      <li><a href="#service">2. The Service</a></li>
+      <li><a href="#account">3. Your Account</a></li>
+      <li><a href="#acceptable-use">4. Acceptable Use</a></li>
+      <li><a href="#user-content">5. User Content</a></li>
+      <li><a href="#ip">6. Intellectual Property</a></li>
+      <li><a href="#billing">7. Billing & Subscriptions</a></li>
+      <li><a href="#third-parties">8. Third-Party Services</a></li>
+      <li><a href="#disclaimers">9. Disclaimers</a></li>
+      <li><a href="#liability">10. Limitation of Liability</a></li>
+      <li><a href="#indemnification">11. Indemnification</a></li>
+      <li><a href="#termination">12. Termination</a></li>
+      <li><a href="#changes">13. Changes</a></li>
+      <li><a href="#governing-law">14. Governing Law</a></li>
+      <li><a href="#privacy">Privacy Policy</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ol>
+  </div>
+
+  <h2 id="eligibility">1. Eligibility</h2>
+  <p>You must be at least 13 years old to use the Service. If you are between 13 and the age of majority in your jurisdiction, you represent that your parent or legal guardian has reviewed and agreed to these Terms on your behalf. The Service is not directed to children under 13, and we do not knowingly collect personal information from anyone under 13.</p>
+
+  <h2 id="service">2. The Service</h2>
+  <p>Langscroll is a language-learning tool that overlays translations, vocabulary, and related learning aids onto short-form video content from third-party platforms such as TikTok, Instagram Reels, and YouTube Shorts. We are not affiliated with, endorsed by, or sponsored by these platforms or their parent companies. Content from third-party platforms is owned by its respective creators and platforms, and your use of that content remains subject to those platforms' own terms.</p>
+  <p>We may add, change, suspend, or remove features at any time. We may also impose usage limits, including on the amount of audio transcribed or content processed.</p>
+
+  <h2 id="account">3. Your Account</h2>
+  <p>To use most features, you need to create an account using an email and password, or by signing in with Google or Apple. You are responsible for keeping your credentials confidential and for all activity under your account. Notify us promptly at <a href="mailto:admin@getlangscroll.com">admin@getlangscroll.com</a> if you suspect unauthorized access.</p>
+  <p>You agree to provide accurate information and to keep it up to date. We may suspend or terminate accounts that we reasonably believe were created with false information or used in violation of these Terms.</p>
+
+  <h2 id="acceptable-use">4. Acceptable Use</h2>
+  <p>You agree not to:</p>
+  <ul>
+    <li>use the Service for any unlawful purpose or in violation of any applicable law;</li>
+    <li>reverse engineer, decompile, scrape, or attempt to extract source code or non-public data from the Service, except to the extent expressly permitted by law;</li>
+    <li>interfere with or disrupt the Service, our servers, or our networks;</li>
+    <li>use the Service to harass, abuse, or harm others, or to upload content that is illegal, infringing, or harmful;</li>
+    <li>circumvent rate limits, paywalls, or access controls;</li>
+    <li>use the Service to violate the terms or rights of any third-party platform whose content you view through Langscroll.</li>
+  </ul>
+
+  <h2 id="user-content">5. User Content and Saved Data</h2>
+  <p>The Service lets you save words, definitions, and learning progress. You retain ownership of any content you submit. You grant Langscroll a non-exclusive, worldwide, royalty-free license to host, store, and process that content solely to operate and improve the Service.</p>
+  <p>You are responsible for the legality of content you submit. Do not upload anything you do not have the right to share.</p>
+
+  <h2 id="ip">6. Intellectual Property</h2>
+  <p>The Service, including its software, design, branding, and original content, is owned by Langscroll Inc. and protected by copyright, trademark, and other laws. We grant you a limited, non-exclusive, non-transferable, revocable license to use the Service for personal, non-commercial language learning. All rights not expressly granted are reserved.</p>
+
+  <h2 id="billing">7. Billing and Subscriptions</h2>
+  <p>The Service is currently offered free of charge during our pilot. We expect to introduce paid plans in the future. When we do, you will be notified and given an opportunity to review pricing, billing terms, and refund policies before any charge. Continued use of paid features after that point constitutes acceptance of the applicable billing terms.</p>
+
+  <h2 id="third-parties">8. Third-Party Services</h2>
+  <p>The Service relies on third-party providers, including Supabase (database and authentication), Google Sign-In, Apple Sign-In, and Deepgram (speech-to-text). When you use the Service, certain data is shared with these providers as necessary for them to perform their function. Their handling of your data is governed by their own privacy policies, and we encourage you to review them.</p>
+  <p>The Service displays content embedded from third-party video platforms. We do not control that content and are not responsible for it.</p>
+
+  <h2 id="disclaimers">9. Disclaimers</h2>
+  <div class="legal-emphasis">
+    THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE DO NOT WARRANT THAT TRANSLATIONS, TRANSCRIPTIONS, OR DEFINITIONS WILL BE ACCURATE, COMPLETE, OR SUITABLE FOR ANY PURPOSE. THE SERVICE IS A LEARNING AID AND SHOULD NOT BE RELIED ON FOR PROFESSIONAL, LEGAL, MEDICAL, OR SAFETY-CRITICAL TRANSLATION.
+  </div>
+
+  <h2 id="liability">10. Limitation of Liability</h2>
+  <div class="legal-emphasis">
+    TO THE MAXIMUM EXTENT PERMITTED BY LAW, LANGSCROLL INC. AND ITS DIRECTORS, OFFICERS, EMPLOYEES, AND AGENTS WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF PROFITS, DATA, OR GOODWILL, ARISING OUT OF OR RELATED TO YOUR USE OF THE SERVICE. OUR TOTAL LIABILITY FOR ANY CLAIM RELATED TO THE SERVICE WILL NOT EXCEED THE GREATER OF (A) THE AMOUNT YOU PAID US IN THE TWELVE MONTHS BEFORE THE EVENT GIVING RISE TO THE CLAIM, OR (B) CAD $50.
+  </div>
+
+  <h2 id="indemnification">11. Indemnification</h2>
+  <p>You agree to indemnify and hold Langscroll Inc. harmless from any claim, demand, loss, or expense (including reasonable legal fees) arising out of your use of the Service, your content, or your violation of these Terms or applicable law.</p>
+
+  <h2 id="termination">12. Termination</h2>
+  <p>You may stop using the Service and delete your account at any time by contacting us at <a href="mailto:admin@getlangscroll.com">admin@getlangscroll.com</a>. We may suspend or terminate your access if you violate these Terms or if we reasonably believe your continued use poses a risk to us, the Service, or other users. Sections that by their nature should survive termination (including ownership, disclaimers, limitation of liability, and governing law) will survive.</p>
+
+  <h2 id="changes">13. Changes to These Terms</h2>
+  <p>We may update these Terms from time to time. If we make material changes, we will notify you through the Service or by email before the changes take effect. Your continued use of the Service after the effective date of the updated Terms constitutes acceptance.</p>
+
+  <h2 id="governing-law">14. Governing Law and Dispute Resolution</h2>
+  <p>These Terms are governed by the laws of the Province of Ontario and the federal laws of Canada applicable therein, without regard to conflict-of-laws principles. You agree to submit to the exclusive jurisdiction of the courts located in Toronto, Ontario for the resolution of any dispute arising out of or related to these Terms or the Service, except where prohibited by applicable consumer-protection law.</p>
+
+  <h2 id="privacy" class="privacy-divider">Privacy Policy</h2>
+  <p>This Privacy Policy describes how Langscroll Inc. collects, uses, and shares personal information when you use the Service. It is incorporated into and forms part of these Terms.</p>
+
+  <h2 id="info-collected">15. Information We Collect</h2>
+  <ul>
+    <li><strong>Account information:</strong> your email address, and, if you sign in with Google or Apple, the basic profile information those providers share with us (such as name and a unique identifier).</li>
+    <li><strong>Authentication data:</strong> hashed passwords and session tokens, handled by our authentication provider, Supabase.</li>
+    <li><strong>Learning data:</strong> words you save, vocabulary you interact with, familiarity ratings, and other progress information you generate while using the Service.</li>
+    <li><strong>Usage data:</strong> information about how you use the Service, including device type, operating system, app version, and basic interaction events used to diagnose issues and improve the product.</li>
+    <li><strong>Audio for transcription:</strong> when you use transcription features, audio captured from the active video is sent to our speech-to-text provider, Deepgram, for processing. We do not retain raw audio after transcription.</li>
+  </ul>
+
+  <h2 id="info-use">16. How We Use Information</h2>
+  <p>We use personal information to:</p>
+  <ul>
+    <li>provide, maintain, and improve the Service;</li>
+    <li>create and authenticate your account;</li>
+    <li>personalize your learning experience and track progress;</li>
+    <li>communicate with you about the Service, including security and product updates;</li>
+    <li>detect, prevent, and address fraud, abuse, and technical issues;</li>
+    <li>comply with legal obligations.</li>
+  </ul>
+  <p><strong>We do not sell your personal information.</strong></p>
+
+  <h2 id="info-sharing">17. How We Share Information</h2>
+  <p>We share personal information only in these circumstances:</p>
+  <ul>
+    <li>with service providers that help us operate the Service (e.g., Supabase, Google, Apple, Deepgram), bound by contractual confidentiality and security obligations;</li>
+    <li>to comply with legal process, enforce our Terms, or protect rights, safety, and property;</li>
+    <li>in connection with a merger, acquisition, or sale of assets, in which case we will notify affected users.</li>
+  </ul>
+
+  <h2 id="security">18. Data Storage and Security</h2>
+  <p>We store data with reputable cloud providers and use industry-standard safeguards, including encryption in transit and at rest where supported. Authentication tokens on your device are stored using secure platform storage (Keychain on iOS, Keystore on Android). No system is perfectly secure; we cannot guarantee absolute security.</p>
+  <p>Your information may be stored or processed in Canada, the United States, or other countries where our service providers operate. By using the Service, you consent to such transfer.</p>
+
+  <h2 id="retention">19. Data Retention</h2>
+  <p>We retain personal information for as long as your account is active or as needed to provide the Service. If you delete your account, we will delete or anonymize your personal information within a reasonable period, except where we are required to retain it for legal, tax, or security purposes.</p>
+
+  <h2 id="rights">20. Your Rights</h2>
+  <p>Depending on where you live, you may have the right to access, correct, delete, or export your personal information, to object to or restrict certain processing, and to withdraw consent. To exercise any of these rights, contact us at <a href="mailto:admin@getlangscroll.com">admin@getlangscroll.com</a>. We will respond within the time required by applicable law.</p>
+  <p>If you are in Canada and have an unresolved concern about our handling of your personal information, you may contact the Office of the Privacy Commissioner of Canada.</p>
+
+  <h2 id="children">21. Children</h2>
+  <p>The Service is not intended for children under 13. If we learn we have collected personal information from a child under 13 without verified parental consent, we will delete it. If you believe a child under 13 has provided us with personal information, contact <a href="mailto:admin@getlangscroll.com">admin@getlangscroll.com</a>.</p>
+
+  <h2 id="privacy-changes">22. Changes to This Privacy Policy</h2>
+  <p>We may update this Privacy Policy from time to time. Material changes will be communicated through the Service or by email before they take effect.</p>
+
+  <h2 id="contact">23. Contact Us</h2>
+  <p>If you have questions about these Terms or our privacy practices, contact us at:</p>
+  <p>
+    <strong>Langscroll Inc.</strong><br>
+    Toronto, Ontario, Canada<br>
+    Email: <a href="mailto:admin@getlangscroll.com">admin@getlangscroll.com</a>
+  </p>
+</main>
+
+<footer>
+  <div class="footer-logo"><span>langscroll</span></div>
+  <p>&copy; 2026 Langscroll Inc. All rights reserved. &nbsp;&middot;&nbsp; <a href="mailto:admin@getlangscroll.com">admin@getlangscroll.com</a> &nbsp;&middot;&nbsp; <a href="terms.html">Terms & Privacy</a></p>
+</footer>
+
+</body>
+</html>

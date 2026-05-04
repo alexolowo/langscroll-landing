@@ -122,6 +122,45 @@
     .btn-primary:hover { filter: brightness(1.1); }
     .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; filter: none; }
 
+    .agree-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin: 4px 0 22px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .agree-row input[type="checkbox"] {
+      appearance: none; -webkit-appearance: none;
+      width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: 5px;
+      background: rgba(255,255,255,0.05);
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .agree-row input[type="checkbox"]:hover { border-color: rgba(255,255,255,0.55); }
+    .agree-row input[type="checkbox"]:checked {
+      background: var(--grad);
+      border-color: transparent;
+    }
+    .agree-row input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 5px; top: 1px;
+      width: 5px; height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .agree-text {
+      font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5;
+    }
+    .agree-link {
+      color: var(--purple-500); text-decoration: underline;
+      font-weight: 500;
+    }
+    .agree-link:hover { color: #c084fc; }
+
     .error-msg {
       background: rgba(239, 68, 68, 0.15);
       border: 1px solid rgba(239, 68, 68, 0.3);
@@ -192,7 +231,15 @@
 
     <div class="error-msg" id="error-msg"></div>
 
-    <button class="btn-oauth" id="btn-google" onclick="handleGoogle()">
+    <label class="agree-row" for="agree-tos">
+      <input type="checkbox" id="agree-tos" onchange="updateAgreement()">
+      <span class="agree-text">
+        I agree to the
+        <a href="terms.html" target="_blank" rel="noopener" class="agree-link">Terms &amp; Privacy Policy</a>.
+      </span>
+    </label>
+
+    <button class="btn-oauth" id="btn-google" onclick="handleGoogle()" disabled>
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -202,7 +249,7 @@
       Continue with Google
     </button>
 
-    <button class="btn-oauth" id="btn-apple" onclick="handleApple()">
+    <button class="btn-oauth" id="btn-apple" onclick="handleApple()" disabled>
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
         <path d="M17.05 12.04c-.03-2.93 2.39-4.34 2.5-4.41-1.36-1.99-3.48-2.27-4.24-2.3-1.81-.18-3.53 1.06-4.45 1.06-.92 0-2.34-1.04-3.85-1.01-1.98.03-3.81 1.15-4.83 2.92-2.06 3.57-.53 8.85 1.49 11.74.99 1.42 2.16 3.01 3.71 2.95 1.49-.06 2.05-.96 3.85-.96s2.31.96 3.88.93c1.6-.03 2.62-1.45 3.6-2.87 1.13-1.65 1.6-3.25 1.62-3.34-.04-.02-3.11-1.19-3.14-4.71zM14.13 3.31c.81-.99 1.36-2.36 1.21-3.72-1.17.05-2.6.78-3.44 1.76-.75.87-1.41 2.27-1.23 3.6 1.31.1 2.65-.66 3.46-1.64z"/>
       </svg>
@@ -228,7 +275,7 @@
         <label>Confirm Password</label>
         <input type="password" id="signup-confirm" placeholder="Repeat your password" required autocomplete="new-password">
       </div>
-      <button type="submit" class="btn-primary" id="btn-signup">Create Account</button>
+      <button type="submit" class="btn-primary" id="btn-signup" disabled>Create Account</button>
     </form>
   </div>
 
@@ -302,11 +349,27 @@
 
   function setLoading(loading) {
     const btn = document.getElementById('btn-signup');
-    btn.disabled = loading;
+    btn.disabled = loading || !isAgreed();
     btn.innerHTML = loading ? '<span class="spinner"></span> Please wait…' : 'Create Account';
   }
 
+  function isAgreed() {
+    return document.getElementById('agree-tos').checked;
+  }
+
+  function updateAgreement() {
+    const agreed = isAgreed();
+    document.getElementById('btn-google').disabled = !agreed;
+    document.getElementById('btn-apple').disabled = !agreed;
+    document.getElementById('btn-signup').disabled = !agreed;
+    if (agreed) clearError();
+  }
+
   async function handleOAuth(provider, btnId) {
+    if (!isAgreed()) {
+      showError('Please agree to the Terms & Privacy Policy to continue.');
+      return;
+    }
     clearError();
     document.getElementById(btnId).disabled = true;
     const { error } = await client.auth.signInWithOAuth({
@@ -325,6 +388,10 @@
   async function handleSignup(e) {
     e.preventDefault();
     clearError();
+    if (!isAgreed()) {
+      showError('Please agree to the Terms & Privacy Policy to continue.');
+      return;
+    }
     const email = document.getElementById('signup-email').value.trim();
     const password = document.getElementById('signup-password').value;
     const confirm = document.getElementById('signup-confirm').value;
