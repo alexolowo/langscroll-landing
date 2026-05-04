@@ -79,7 +79,7 @@
       margin-bottom: 28px; line-height: 1.5;
     }
 
-    .btn-google {
+    .btn-oauth {
       width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
       padding: 12px; border-radius: 10px; cursor: pointer;
       background: rgba(255,255,255,0.08);
@@ -87,9 +87,10 @@
       color: var(--white); font-size: 15px; font-weight: 600;
       font-family: inherit; transition: background 0.2s;
     }
-    .btn-google:hover { background: rgba(255,255,255,0.13); }
-    .btn-google:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .btn-oauth:hover { background: rgba(255,255,255,0.13); }
+    .btn-oauth:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-oauth svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .btn-oauth + .btn-oauth { margin-top: 10px; }
 
     .divider {
       display: flex; align-items: center; gap: 12px; margin: 20px 0;
@@ -191,7 +192,7 @@
 
     <div class="error-msg" id="error-msg"></div>
 
-    <button class="btn-google" id="btn-google" onclick="handleGoogle()">
+    <button class="btn-oauth" id="btn-google" onclick="handleGoogle()">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -199,6 +200,13 @@
         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
       </svg>
       Continue with Google
+    </button>
+
+    <button class="btn-oauth" id="btn-apple" onclick="handleApple()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+        <path d="M17.05 12.04c-.03-2.93 2.39-4.34 2.5-4.41-1.36-1.99-3.48-2.27-4.24-2.3-1.81-.18-3.53 1.06-4.45 1.06-.92 0-2.34-1.04-3.85-1.01-1.98.03-3.81 1.15-4.83 2.92-2.06 3.57-.53 8.85 1.49 11.74.99 1.42 2.16 3.01 3.71 2.95 1.49-.06 2.05-.96 3.85-.96s2.31.96 3.88.93c1.6-.03 2.62-1.45 3.6-2.87 1.13-1.65 1.6-3.25 1.62-3.34-.04-.02-3.11-1.19-3.14-4.71zM14.13 3.31c.81-.99 1.36-2.36 1.21-3.72-1.17.05-2.6.78-3.44 1.76-.75.87-1.41 2.27-1.23 3.6 1.31.1 2.65-.66 3.46-1.64z"/>
+      </svg>
+      Continue with Apple
     </button>
 
     <div class="divider">
@@ -214,7 +222,7 @@
       </div>
       <div class="field">
         <label>Password</label>
-        <input type="password" id="signup-password" placeholder="At least 8 characters" required minlength="8" autocomplete="new-password">
+        <input type="password" id="signup-password" placeholder="Upper, lower, digit, symbol — 8+ chars" required minlength="8" autocomplete="new-password">
       </div>
       <div class="field">
         <label>Confirm Password</label>
@@ -226,7 +234,7 @@
 
   <div class="success-card" id="success-card">
     <div class="success-icon">
-      <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <svg id="success-icon-svg" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
     </div>
     <h2 id="success-title">Check your inbox!</h2>
     <p id="success-message">We've sent a confirmation link to your email. Click it to activate your account and get early access to Langscroll.</p>
@@ -241,12 +249,35 @@
 
   client.auth.onAuthStateChange((event, session) => {
     if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
-      showSuccess(
-        "You're in! 🎉",
-        `You're signed in as ${session.user.email}. Welcome to Langscroll — we'll be in touch soon!`
-      );
+      const createdAt = new Date(session.user.created_at).getTime();
+      const isNew = Date.now() - createdAt < 10 * 60 * 1000;
+      if (isNew) {
+        showSuccess(
+          'Account created! 🎉',
+          `You're all set, ${session.user.email}. Early pilot users get free access for life — we'll email you when your spot opens.`,
+          'check'
+        );
+      } else {
+        showSuccess(
+          "You're signed in",
+          `Welcome back, ${session.user.email}.`,
+          'check'
+        );
+      }
     }
   });
+
+  function validatePassword(pw) {
+    const checks = [
+      [pw.length >= 8, 'at least 8 characters'],
+      [/[a-z]/.test(pw), 'a lowercase letter'],
+      [/[A-Z]/.test(pw), 'an uppercase letter'],
+      [/\d/.test(pw), 'a digit'],
+      [/[^A-Za-z0-9]/.test(pw), 'a symbol'],
+    ];
+    const missing = checks.filter(([ok]) => !ok).map(([, label]) => label);
+    return missing.length ? 'Password must include ' + missing.join(', ') + '.' : null;
+  }
 
   function showError(msg) {
     const el = document.getElementById('error-msg');
@@ -258,10 +289,14 @@
     document.getElementById('error-msg').classList.remove('show');
   }
 
-  function showSuccess(title, message) {
+  function showSuccess(title, message, iconType = 'envelope') {
     document.getElementById('auth-card').style.display = 'none';
     document.getElementById('success-title').textContent = title;
     document.getElementById('success-message').textContent = message;
+    const icon = document.getElementById('success-icon-svg');
+    icon.innerHTML = iconType === 'check'
+      ? '<polyline points="20 6 9 17 4 12"/>'
+      : '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>';
     document.getElementById('success-card').classList.add('show');
   }
 
@@ -271,18 +306,21 @@
     btn.innerHTML = loading ? '<span class="spinner"></span> Please wait…' : 'Create Account';
   }
 
-  async function handleGoogle() {
+  async function handleOAuth(provider, btnId) {
     clearError();
-    document.getElementById('btn-google').disabled = true;
+    document.getElementById(btnId).disabled = true;
     const { error } = await client.auth.signInWithOAuth({
-      provider: 'google',
+      provider,
       options: { redirectTo: window.location.href }
     });
     if (error) {
       showError(error.message);
-      document.getElementById('btn-google').disabled = false;
+      document.getElementById(btnId).disabled = false;
     }
   }
+
+  function handleGoogle() { handleOAuth('google', 'btn-google'); }
+  function handleApple() { handleOAuth('apple', 'btn-apple'); }
 
   async function handleSignup(e) {
     e.preventDefault();
@@ -292,7 +330,8 @@
     const confirm = document.getElementById('signup-confirm').value;
 
     if (password !== confirm) { showError('Passwords do not match.'); return; }
-    if (password.length < 8) { showError('Password must be at least 8 characters.'); return; }
+    const pwError = validatePassword(password);
+    if (pwError) { showError(pwError); return; }
 
     setLoading(true);
     const { data, error } = await client.auth.signUp({
