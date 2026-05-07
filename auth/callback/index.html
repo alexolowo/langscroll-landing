@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Langscroll — Email Confirmed</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #1e293b;
+      padding: 24px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 48px 40px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+    }
+    .logo {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      display: block;
+    }
+    .icon {
+      width: 52px;
+      height: 52px;
+      background: #f0f1ff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .icon svg { color: #4550EB; }
+    h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #080d24;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 15px;
+      line-height: 23px;
+      color: #475569;
+      margin-bottom: 28px;
+    }
+    .btn {
+      display: inline-block;
+      background: #4550EB;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 13px 28px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .footer {
+      margin-top: 24px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .state-checking .icon-check { display: none; }
+    .state-checking .icon-spin { display: flex; }
+    .state-done .icon-check { display: flex; }
+    .state-done .icon-spin { display: none; }
+    .icon-spin {
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <img src="/logo.png" alt="Langscroll" class="logo">
+
+    <div class="icon state-done" id="icon">
+      <svg class="icon-check" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <svg class="icon-spin" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+      </svg>
+    </div>
+
+    <h1 id="heading">Email confirmed</h1>
+    <p id="body">Open the Langscroll app to start learning.</p>
+    <a href="#" class="btn" id="cta">Open Langscroll</a>
+    <p class="footer">Don't have the app? <a href="https://getlangscroll.com" style="color:#4550EB;">Learn more</a></p>
+  </div>
+
+  <script>
+    (function () {
+      var search = window.location.search;
+      var hash = window.location.hash;
+      var deepLink = 'langscroll://auth/callback' + search + hash;
+
+      document.getElementById('cta').href = deepLink;
+
+      // Attempt automatic redirect into the app on mobile
+      var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (isMobile) {
+        window.location = deepLink;
+      }
+    })();
+  </script>
+</body>
+</html>
