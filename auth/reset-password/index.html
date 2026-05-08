@@ -290,12 +290,20 @@
     var hashParams = new URLSearchParams(window.location.hash.slice(1));
 
     var code = params.get('code');
+    var tokenHash = params.get('token_hash');
+    var type = params.get('type') || 'recovery';
     var accessToken = hashParams.get('access_token');
     var refreshToken = hashParams.get('refresh_token');
 
     if (code) {
       var result = await client.auth.exchangeCodeForSession(code);
       if (result.error) {
+        showError('Link expired', 'This reset link has expired or already been used. Please request a new one.');
+        return false;
+      }
+    } else if (tokenHash) {
+      var result3 = await client.auth.verifyOtp({ token_hash: tokenHash, type: type });
+      if (result3.error) {
         showError('Link expired', 'This reset link has expired or already been used. Please request a new one.');
         return false;
       }
@@ -347,10 +355,11 @@
     var hashParams = new URLSearchParams(window.location.hash.slice(1));
 
     var code = params.get('code');
+    var tokenHash = params.get('token_hash');
+    var tokenType = params.get('type') || hashParams.get('type');
     var accessToken = hashParams.get('access_token');
-    var tokenType = hashParams.get('type');
 
-    var hasToken = code || (accessToken && tokenType === 'recovery');
+    var hasToken = code || tokenHash || (accessToken && tokenType === 'recovery');
 
     if (!hasToken) {
       showError('Invalid link', 'No reset token found in this URL. Please request a new password reset link from the app.');
@@ -358,7 +367,7 @@
     }
 
     if (isMobile) {
-      // Hand off to the app — it handles code exchange via its deep link handler
+      // Hand off to the app — it handles code/token exchange via its deep link handler
       var appLink = 'langscroll://reset-password' + window.location.search + window.location.hash;
       window.location.href = appLink;
       showPanel('panel-mobile');
