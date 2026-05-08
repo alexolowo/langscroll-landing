@@ -185,9 +185,10 @@
         <line x1="12" y1="18" x2="12.01" y2="18"/>
       </svg>
     </div>
-    <h2>Opening Langscroll…</h2>
-    <p>The app should open automatically. Set your new password there.</p>
-    <p class="web-fallback">App didn't open? <a onclick="activateWebForm()">Reset in browser instead</a></p>
+    <h2>Reset your password</h2>
+    <p style="margin-bottom: 24px;">Tap below to open Langscroll and finish setting your new password.</p>
+    <a href="#" id="open-app-btn" class="btn-primary" style="display:inline-block; text-decoration:none; padding:14px 28px;">Open Langscroll</a>
+    <p class="web-fallback" style="margin-top:24px;">Don't have the app? <a onclick="activateWebForm()">Reset in browser instead</a></p>
   </div>
 
   <!-- Reset form (desktop / fallback) -->
@@ -367,10 +368,14 @@
     }
 
     if (isMobile) {
-      // Hand off to the app — it handles code/token exchange via its deep link handler
+      // Hand off to the app — it handles code/token exchange via its deep link handler.
+      // iOS Safari and in-app browsers (Gmail, Facebook) block JS-initiated redirects to
+      // custom schemes, so the user must tap the button. We still try auto-redirect as a
+      // best-effort: it works in mobile Chrome and standalone Safari.
       var appLink = 'langscroll://reset-password' + window.location.search + window.location.hash;
-      window.location.href = appLink;
+      document.getElementById('open-app-btn').href = appLink;
       showPanel('panel-mobile');
+      setTimeout(function() { window.location.href = appLink; }, 100);
       return;
     }
 
