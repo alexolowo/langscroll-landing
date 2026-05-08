@@ -127,7 +127,7 @@
       stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
     }
     .status-panel h2 { font-size: 20px; font-weight: 800; color: var(--white); margin-bottom: 8px; }
-    .status-panel p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+    .status-panel p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
     .web-fallback {
       margin-top: 24px; font-size: 13px; color: rgba(255,255,255,0.35);
     }
@@ -254,7 +254,10 @@
 
   function showError(heading, body) {
     document.getElementById('error-heading').textContent = heading || 'Something went wrong';
-    document.getElementById('error-body').textContent = body || 'Please request a new password reset link.';
+    var bodyText = body || 'Please request a new password reset link.';
+    var diag = '\n\nDebug: ' + (window.location.search || '(no query)') +
+               ' | hash: ' + (window.location.hash || '(no hash)');
+    document.getElementById('error-body').textContent = bodyText + diag;
     showPanel('panel-error');
   }
 
@@ -368,14 +371,11 @@
     }
 
     if (isMobile) {
-      // Hand off to the app — it handles code/token exchange via its deep link handler.
-      // iOS Safari and in-app browsers (Gmail, Facebook) block JS-initiated redirects to
-      // custom schemes, so the user must tap the button. We still try auto-redirect as a
-      // best-effort: it works in mobile Chrome and standalone Safari.
+      // Hand off to the app via tappable link — iOS blocks JS-initiated redirects to
+      // custom URL schemes outside of user gestures.
       var appLink = 'langscroll://reset-password' + window.location.search + window.location.hash;
       document.getElementById('open-app-btn').href = appLink;
       showPanel('panel-mobile');
-      setTimeout(function() { window.location.href = appLink; }, 100);
       return;
     }
 
