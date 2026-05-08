@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Password — Langscroll</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --grad: linear-gradient(135deg, #4550EB, #A855F7);
+      --purple-500: #A855F7;
+      --white: #ffffff;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #080d24;
+      overflow: hidden;
+    }
+
+    .globe-frame {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      border: none; pointer-events: none; z-index: 0;
+    }
+
+    .overlay {
+      position: fixed; inset: 0; z-index: 1;
+      background: linear-gradient(to bottom, rgba(8,13,36,0.6) 0%, rgba(26,10,64,0.5) 100%);
+    }
+
+    .page {
+      position: relative; z-index: 2;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 24px;
+    }
+
+    .logo {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 32px;
+      text-decoration: none;
+    }
+    .logo img { width: 32px; height: 32px; object-fit: contain; }
+    .logo-text {
+      font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card {
+      width: 100%; max-width: 420px;
+      background: rgba(12, 18, 45, 0.85);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 36px 32px;
+    }
+
+    .card-title {
+      font-size: 20px; font-weight: 800; color: var(--white);
+      margin-bottom: 6px;
+    }
+    .card-subtitle {
+      font-size: 14px; color: rgba(255,255,255,0.45);
+      margin-bottom: 28px; line-height: 1.5;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,0.6); margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%; padding: 12px 14px; border-radius: 10px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--white); font-size: 15px; font-family: inherit;
+      outline: none; transition: border-color 0.2s;
+    }
+    .field input::placeholder { color: rgba(255,255,255,0.25); }
+    .field input:focus { border-color: rgba(69,80,235,0.6); }
+
+    .btn-primary {
+      width: 100%; padding: 13px; border-radius: 10px; cursor: pointer;
+      background: var(--grad); color: var(--white);
+      font-size: 15px; font-weight: 700; font-family: inherit;
+      border: none; margin-top: 6px; transition: filter 0.2s;
+    }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; filter: none; }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5; font-size: 13px; font-weight: 500;
+      padding: 10px 14px; border-radius: 8px; margin-bottom: 16px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* State panels */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Loading / mobile spinner panel */
+    .status-panel {
+      width: 100%; max-width: 420px; text-align: center;
+      background: rgba(12, 18, 45, 0.85);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 48px 32px;
+    }
+    .status-icon {
+      width: 64px; height: 64px; margin: 0 auto 20px;
+      background: var(--grad); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .status-icon svg {
+      width: 28px; height: 28px; stroke: white; fill: none;
+      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .status-panel h2 { font-size: 20px; font-weight: 800; color: var(--white); margin-bottom: 8px; }
+    .status-panel p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+    .web-fallback {
+      margin-top: 24px; font-size: 13px; color: rgba(255,255,255,0.35);
+    }
+    .web-fallback a {
+      color: rgba(168,85,247,0.8); text-decoration: underline;
+      cursor: pointer; background: none; border: none;
+      font-family: inherit; font-size: inherit;
+    }
+    .web-fallback a:hover { color: var(--purple-500); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    .spin-icon {
+      animation: spin 0.8s linear infinite;
+    }
+
+    @media (max-width: 480px) {
+      .card, .status-panel { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<iframe class="globe-frame" src="/globe.html" title="Globe"></iframe>
+<div class="overlay"></div>
+
+<div class="page">
+  <a href="/" class="logo">
+    <img src="/logo.png" alt="Langscroll">
+    <span class="logo-text">langscroll</span>
+  </a>
+
+  <!-- Loading state -->
+  <div class="status-panel panel active" id="panel-loading">
+    <div class="status-icon">
+      <svg class="spin-icon" viewBox="0 0 24 24">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h2>One moment…</h2>
+    <p>Verifying your reset link.</p>
+  </div>
+
+  <!-- Mobile redirect state -->
+  <div class="status-panel panel" id="panel-mobile">
+    <div class="status-icon">
+      <svg viewBox="0 0 24 24">
+        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+        <line x1="12" y1="18" x2="12.01" y2="18"/>
+      </svg>
+    </div>
+    <h2>Opening Langscroll…</h2>
+    <p>The app should open automatically. Set your new password there.</p>
+    <p class="web-fallback">App didn't open? <a onclick="activateWebForm()">Reset in browser instead</a></p>
+  </div>
+
+  <!-- Reset form (desktop / fallback) -->
+  <div class="card panel" id="panel-form">
+    <div class="card-title">Set new password</div>
+    <div class="card-subtitle">Choose a strong password for your Langscroll account.</div>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <form onsubmit="handleReset(event)">
+      <div class="field">
+        <label for="new-password">New password</label>
+        <input type="password" id="new-password" placeholder="Upper, lower, digit, symbol — 8+ chars" required autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label for="confirm-password">Confirm password</label>
+        <input type="password" id="confirm-password" placeholder="Repeat your password" required autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn-primary" id="btn-reset">Update Password</button>
+    </form>
+  </div>
+
+  <!-- Success state -->
+  <div class="status-panel panel" id="panel-success">
+    <div class="status-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Password updated!</h2>
+    <p>Your password has been changed. Open the Langscroll app to sign in.</p>
+    <p class="web-fallback" style="margin-top:20px;">
+      <a href="langscroll://auth" id="open-app-link">Open Langscroll app</a>
+    </p>
+  </div>
+
+  <!-- Error state -->
+  <div class="status-panel panel" id="panel-error">
+    <div class="status-icon" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.3);">
+      <svg viewBox="0 0 24 24" style="stroke: #fca5a5;">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+    <h2 style="color: #fca5a5;" id="error-heading">Link expired</h2>
+    <p id="error-body">This reset link has expired or already been used.</p>
+    <p class="web-fallback" style="margin-top:20px;">
+      <a href="/">← Back to home</a>
+    </p>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://rvfkbodbhietyljndfwx.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_8DV9d8TXrOLmwc_7qoB-Zw_qPRbjTDs';
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  function showPanel(id) {
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+  }
+
+  function showError(heading, body) {
+    document.getElementById('error-heading').textContent = heading || 'Something went wrong';
+    document.getElementById('error-body').textContent = body || 'Please request a new password reset link.';
+    showPanel('panel-error');
+  }
+
+  function showFormError(msg) {
+    var el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  function clearFormError() {
+    document.getElementById('error-msg').classList.remove('show');
+  }
+
+  function setLoading(loading) {
+    var btn = document.getElementById('btn-reset');
+    btn.disabled = loading;
+    btn.innerHTML = loading ? '<span class="spinner"></span>Updating…' : 'Update Password';
+  }
+
+  function validatePassword(pw) {
+    var checks = [
+      [pw.length >= 8, 'at least 8 characters'],
+      [/[a-z]/.test(pw), 'a lowercase letter'],
+      [/[A-Z]/.test(pw), 'an uppercase letter'],
+      [/\d/.test(pw), 'a digit'],
+      [/[^A-Za-z0-9]/.test(pw), 'a symbol'],
+    ];
+    var missing = checks.filter(function(c) { return !c[0]; }).map(function(c) { return c[1]; });
+    return missing.length ? 'Password must include ' + missing.join(', ') + '.' : null;
+  }
+
+  async function exchangeAndShowForm() {
+    var params = new URLSearchParams(window.location.search);
+    var hashParams = new URLSearchParams(window.location.hash.slice(1));
+
+    var code = params.get('code');
+    var accessToken = hashParams.get('access_token');
+    var refreshToken = hashParams.get('refresh_token');
+
+    if (code) {
+      var result = await client.auth.exchangeCodeForSession(code);
+      if (result.error) {
+        showError('Link expired', 'This reset link has expired or already been used. Please request a new one.');
+        return false;
+      }
+    } else if (accessToken && refreshToken) {
+      var result2 = await client.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+      if (result2.error) {
+        showError('Link expired', 'This reset link has expired or already been used. Please request a new one.');
+        return false;
+      }
+    } else {
+      showError('Invalid link', 'No reset token found in this URL. Please request a new password reset link.');
+      return false;
+    }
+
+    showPanel('panel-form');
+    return true;
+  }
+
+  async function activateWebForm() {
+    showPanel('panel-loading');
+    await exchangeAndShowForm();
+  }
+
+  async function handleReset(e) {
+    e.preventDefault();
+    clearFormError();
+
+    var password = document.getElementById('new-password').value;
+    var confirm = document.getElementById('confirm-password').value;
+
+    if (password !== confirm) { showFormError('Passwords do not match.'); return; }
+    var pwError = validatePassword(password);
+    if (pwError) { showFormError(pwError); return; }
+
+    setLoading(true);
+    var result = await client.auth.updateUser({ password: password });
+    setLoading(false);
+
+    if (result.error) {
+      showFormError(result.error.message);
+    } else {
+      showPanel('panel-success');
+    }
+  }
+
+  // Boot
+  (async function init() {
+    var params = new URLSearchParams(window.location.search);
+    var hashParams = new URLSearchParams(window.location.hash.slice(1));
+
+    var code = params.get('code');
+    var accessToken = hashParams.get('access_token');
+    var tokenType = hashParams.get('type');
+
+    var hasToken = code || (accessToken && tokenType === 'recovery');
+
+    if (!hasToken) {
+      showError('Invalid link', 'No reset token found in this URL. Please request a new password reset link from the app.');
+      return;
+    }
+
+    if (isMobile) {
+      // Hand off to the app — it handles code exchange via its deep link handler
+      var appLink = 'langscroll://reset-password' + window.location.search + window.location.hash;
+      window.location.href = appLink;
+      showPanel('panel-mobile');
+      return;
+    }
+
+    // Desktop: exchange the code and show the form
+    await exchangeAndShowForm();
+  })();
+</script>
+</body>
+</html>

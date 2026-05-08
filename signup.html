@@ -277,6 +277,11 @@
       </div>
       <button type="submit" class="btn-primary" id="btn-signup" disabled>Create Account</button>
     </form>
+
+    <p style="margin-top:20px;text-align:center;font-size:13px;color:rgba(255,255,255,0.35);">
+      Already have an account?
+      <a href="/auth/forgot-password/" style="color:rgba(168,85,247,0.8);text-decoration:underline;font-weight:500;">Forgot password?</a>
+    </p>
   </div>
 
   <div class="success-card" id="success-card">
@@ -294,8 +299,10 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_8DV9d8TXrOLmwc_7qoB-Zw_qPRbjTDs';
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // Only handle SIGNED_IN (OAuth redirect callbacks) — not INITIAL_SESSION,
+  // which fires on page load for existing sessions and would skip the form.
   client.auth.onAuthStateChange((event, session) => {
-    if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+    if (session && event === 'SIGNED_IN') {
       const createdAt = new Date(session.user.created_at).getTime();
       const isNew = Date.now() - createdAt < 10 * 60 * 1000;
       if (isNew) {
@@ -326,9 +333,9 @@
     return missing.length ? 'Password must include ' + missing.join(', ') + '.' : null;
   }
 
-  function showError(msg) {
+  function showError(msg, html) {
     const el = document.getElementById('error-msg');
-    el.textContent = msg;
+    if (html) { el.innerHTML = msg; } else { el.textContent = msg; }
     el.classList.add('show');
   }
 
@@ -410,7 +417,10 @@
     if (error) {
       showError(error.message);
     } else if (data.user?.identities?.length === 0) {
-      showError('An account with this email already exists.');
+      showError(
+        'An account with this email already exists. <a href="/auth/forgot-password/" style="color:#fca5a5;text-decoration:underline;font-weight:600;">Forgot your password?</a>',
+        true
+      );
     } else {
       showSuccess(
         'Check your inbox!',
