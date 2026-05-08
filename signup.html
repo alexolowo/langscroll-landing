@@ -297,7 +297,15 @@
 <script>
   const SUPABASE_URL = 'https://rvfkbodbhietyljndfwx.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_8DV9d8TXrOLmwc_7qoB-Zw_qPRbjTDs';
+  const PILOT_MAX = 200;
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Redirect to waitlist if pilot is full before showing the signup form.
+  client.rpc('get_pilot_count').then(({ data: count }) => {
+    if (count >= PILOT_MAX) {
+      window.location.replace('waitlist.html');
+    }
+  });
 
   // Sign out any existing session on page load so this page is always a
   // clean slate — OAuth callbacks set a fresh session immediately after.
