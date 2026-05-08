@@ -299,10 +299,14 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_8DV9d8TXrOLmwc_7qoB-Zw_qPRbjTDs';
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Only handle SIGNED_IN (OAuth redirect callbacks) — not INITIAL_SESSION,
-  // which fires on page load for existing sessions and would skip the form.
+  // Only handle OAuth sign-ins (Google/Apple redirect callbacks).
+  // Email sign-ups are handled directly in handleSignup — if we also handle
+  // them here, SIGNED_IN fires during signUp() and shows the success card
+  // on every subsequent visit while the session is still active.
   client.auth.onAuthStateChange((event, session) => {
     if (session && event === 'SIGNED_IN') {
+      const provider = session.user.app_metadata?.provider;
+      if (provider !== 'google' && provider !== 'apple') return;
       const createdAt = new Date(session.user.created_at).getTime();
       const isNew = Date.now() - createdAt < 10 * 60 * 1000;
       if (isNew) {
