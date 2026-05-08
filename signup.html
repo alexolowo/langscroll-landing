@@ -299,6 +299,12 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_8DV9d8TXrOLmwc_7qoB-Zw_qPRbjTDs';
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // Sign out any existing session on page load so this page is always a
+  // clean slate — OAuth callbacks set a fresh session immediately after.
+  client.auth.getSession().then(({ data: { session } }) => {
+    if (session) client.auth.signOut();
+  });
+
   // Only handle OAuth sign-ins (Google/Apple redirect callbacks).
   // Email sign-ups are handled directly in handleSignup — if we also handle
   // them here, SIGNED_IN fires during signUp() and shows the success card
@@ -322,6 +328,7 @@
           'check'
         );
       }
+      client.auth.signOut();
     }
   });
 
@@ -430,6 +437,7 @@
         'Check your inbox!',
         `We've sent a confirmation link to ${email}. Click it to activate your account and get early access to Langscroll.`
       );
+      client.auth.signOut();
     }
   }
 </script>
